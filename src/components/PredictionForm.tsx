@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Activity, Gauge, Thermometer, RotateCw, Settings2, Timer } from "lucide-react";
+import { Loader2, Activity, Gauge, Thermometer, RotateCw, Settings2, Timer, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface FormData {
   type: string;
@@ -13,12 +13,15 @@ interface FormData {
   rotSpeed: string;
   torque: string;
   toolWear: string;
+  timeframe: string;
 }
 
 interface PredictionResult {
   prediction: number;
   failure_probability: number;
   result: string;
+  risk_window?: string;
+  selected_timeframe?: string;
 }
 
 interface PredictionFormProps {
@@ -34,15 +37,27 @@ const initialFormData: FormData = {
   rotSpeed: "",
   torque: "",
   toolWear: "",
+  timeframe: "24h",
 };
 
-const sampleValues: FormData = {
+const healthyExample: FormData = {
   type: "M",
   airTemp: "300",
   processTemp: "310",
   rotSpeed: "1500",
   torque: "40",
   toolWear: "100",
+  timeframe: "24h",
+};
+
+const failureRiskExample: FormData = {
+  type: "L",
+  airTemp: "305",
+  processTemp: "315",
+  rotSpeed: "1200",
+  torque: "70",
+  toolWear: "220",
+  timeframe: "7d",
 };
 
 export function PredictionForm({ onResult, onLoading, onError }: PredictionFormProps) {
@@ -54,8 +69,13 @@ export function PredictionForm({ onResult, onLoading, onError }: PredictionFormP
     onError(null);
   };
 
-  const handleUseSampleValues = () => {
-    setFormData(sampleValues);
+  const handleHealthyExample = () => {
+    setFormData(healthyExample);
+    onError(null);
+  };
+
+  const handleFailureRiskExample = () => {
+    setFormData(failureRiskExample);
     onError(null);
   };
 
@@ -88,6 +108,7 @@ export function PredictionForm({ onResult, onLoading, onError }: PredictionFormP
           rot_speed: parseFloat(formData.rotSpeed),
           torque: parseFloat(formData.torque),
           tool_wear: parseFloat(formData.toolWear),
+          timeframe: formData.timeframe,
         }),
       });
 
@@ -219,6 +240,24 @@ export function PredictionForm({ onResult, onLoading, onError }: PredictionFormP
           />
         </div>
 
+        {/* Prediction Timeframe */}
+        <div className="space-y-2">
+          <Label htmlFor="timeframe" className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Clock className="w-4 h-4 text-muted-foreground" />
+            Prediction Timeframe
+          </Label>
+          <Select value={formData.timeframe} onValueChange={(value) => handleInputChange("timeframe", value)}>
+            <SelectTrigger className="input-industrial h-11">
+              <SelectValue placeholder="Select timeframe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="24h">Next 24 hours</SelectItem>
+              <SelectItem value="7d">Next 7 days</SelectItem>
+              <SelectItem value="30d">Next 30 days</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <Button
@@ -240,11 +279,21 @@ export function PredictionForm({ onResult, onLoading, onError }: PredictionFormP
           </Button>
           <Button
             variant="outline"
-            onClick={handleUseSampleValues}
+            onClick={handleHealthyExample}
             disabled={isLoading}
-            className="flex-1 h-12 border-border hover:bg-secondary hover:text-secondary-foreground font-medium transition-all duration-200"
+            className="flex-1 h-12 border-success/50 text-success hover:bg-success/10 font-medium transition-all duration-200"
           >
-            Use Sample Values
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+            Healthy Example
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleFailureRiskExample}
+            disabled={isLoading}
+            className="flex-1 h-12 border-danger/50 text-danger hover:bg-danger/10 font-medium transition-all duration-200"
+          >
+            <AlertTriangle className="w-4 h-4 mr-2" />
+            Failure Risk Example
           </Button>
         </div>
       </CardContent>

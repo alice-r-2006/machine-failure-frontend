@@ -1,13 +1,30 @@
-import { AlertTriangle, CheckCircle2, Activity, Wrench } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Activity, Wrench, Clock, Calendar } from "lucide-react";
 
 interface PredictionResultProps {
   prediction: number;
   failureProbability: number;
   result: string;
+  riskWindow?: string;
+  selectedTimeframe?: string;
 }
 
-export function PredictionResult({ prediction, failureProbability, result }: PredictionResultProps) {
+export function PredictionResult({ 
+  prediction, 
+  failureProbability, 
+  result,
+  riskWindow,
+  selectedTimeframe,
+}: PredictionResultProps) {
   const isFailure = prediction === 1;
+
+  const getTimeframeLabel = (timeframe?: string) => {
+    switch (timeframe) {
+      case "24h": return "Next 24 hours";
+      case "7d": return "Next 7 days";
+      case "30d": return "Next 30 days";
+      default: return timeframe || "—";
+    }
+  };
 
   return (
     <div className={`w-full max-w-2xl mx-auto rounded-xl p-6 animate-slide-up ${
@@ -43,6 +60,30 @@ export function PredictionResult({ prediction, failureProbability, result }: Pre
                 {failureProbability.toFixed(1)}%
               </p>
             </div>
+
+            {/* Timeframe Card */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-4 h-4 text-white/70" />
+                <span className="text-sm font-medium text-white/70">Prediction Timeframe</span>
+              </div>
+              <p className="text-lg font-semibold text-white">
+                {getTimeframeLabel(selectedTimeframe)}
+              </p>
+            </div>
+
+            {/* Risk Window Card */}
+            {riskWindow && (
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-white/70" />
+                  <span className="text-sm font-medium text-white/70">Risk Window</span>
+                </div>
+                <p className="text-lg font-semibold text-white">
+                  {riskWindow}
+                </p>
+              </div>
+            )}
 
             {/* Recommendation Card */}
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
