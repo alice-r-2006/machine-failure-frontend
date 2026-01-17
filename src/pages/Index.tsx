@@ -9,6 +9,8 @@ interface Result {
   prediction: number;
   failure_probability: number;
   result: string;
+  risk_window?: string;
+  selected_timeframe?: string;
 }
 
 const Index = () => {
@@ -54,6 +56,8 @@ const Index = () => {
               prediction={result.prediction}
               failureProbability={result.failure_probability}
               result={result.result}
+              riskWindow={result.risk_window}
+              selectedTimeframe={result.selected_timeframe}
             />
           )}
         </main>
